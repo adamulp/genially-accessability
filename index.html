@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extractor de Accesibilidad de Genially</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --bg-slate: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-slate);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Tabs Styling */
+    .tabs-nav {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text-main);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cards Layout */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Search Tool Styles */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Results Area */
+    .results-area {
+      display: none;
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .output-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 0.95rem;
+      color: #334155;
+      white-space: pre-wrap;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    /* Bookmarklet Styles */
+    .bookmarklet-wrapper {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .bookmarklet-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background-color: var(--primary);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: grab;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: transform 0.2s;
+    }
+
+    .bookmarklet-btn:active {
+      cursor: grabbing;
+    }
+
+    .bookmarklet-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .instructions {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .instructions ol {
+      padding-left: 20px;
+      color: var(--text-muted);
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Herramientas de Accesibilidad Genially</h1>
+      <p>Extrae y visualiza el resumen de accesibilidad de cualquier presentación</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('search')">Buscador Directo</button>
+      <button class="tab-btn" onclick="switchTab('bookmarklet')">Marcador (Bookmarklet)</button>
+    </div>
+
+    <!-- TAB 1: Standalone Input Web App -->
+    <div id="tab-search" class="tab-content active">
+      <div class="card">
+        <div class="input-group">
+          <label for="geniallyUrl">Enlace o código de inserción del Genially</label>
+          <input type="text" id="geniallyUrl" placeholder="https://view.genially.com/60a123..." />
+          <button class="btn" onclick="extractAccessibility()">Buscar Resumen</button>
+        </div>
+
+        <div id="results" class="results-area">
+          <label style="display:block; margin-bottom:8px;">Resumen extraído:</label>
+          <div id="output" class="output-box"></div>
+          <button id="copySearchBtn" class="btn" style="background-color: var(--success);" onclick="copySearchResult()">Copiar Texto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Bookmarklet Installer -->
+    <div id="tab-bookmarklet" class="tab-content">
+      <div class="card">
+        <div class="bookmarklet-wrapper">
+          <a class="bookmarklet-btn" href="javascript:(async%20function(){const%20e=document.getElementById(%22genially-a11y-modal%22);e&&e.remove();const%20t=/(?:view\.genially\.com|genial\.ly)\/([a-f0-9]{24})/i,n=document.documentElement.outerHTML.match(t);if(!n)return%20void%20alert(%22No%20se%20encontr%C3%B3%20ning%C3%BAn%20elemento%20o%20enlace%20de%20Genially%20en%20esta%20p%C3%A1gina.%22);const%20o=n[1],a=`https://view.genially.com/${o}`;try{const%20r=await%20fetch(a);if(!r.ok)throw%20new%20Error(`HTTP%20${r.status}`);const%20c=await%20r.text();let%20l=null;const%20i=c.match(/%22accessibilitySummary%22\s*:\s*%22([^%22]+)%22/i);if(i)l=JSON.parse(`%22${i[1]}%22`);else{const%20e=new%20DOMParser().parseFromString(c,%22text/html%22);e.querySelectorAll('script[type=%22application/ld+json%22]').forEach(e=>{try{const%20t=JSON.parse(e.textContent);t.accessibilitySummary&&(l=t.accessibilitySummary)}catch(e){}})}if(!l)return%20void%20alert(%22No%20se%20encontr%C3%B3%20el%20campo%20'accessibilitySummary'%20en%20los%20metadatos%20de%20Genially.%22);const%20s=document.createElement(%22div%22);s.id=%22genially-a11y-modal%22,Object.assign(s.style,{position:%22fixed%22,top:%220%22,left:%220%22,width:%22100vw%22,height:%22100vh%22,backgroundColor:%22rgba(0,%200,%200,%200.6)%22,display:%22flex%22,alignItems:%22center%22,justifyContent:%22center%22,zIndex:%22999999%22,fontFamily:%22system-ui,%20-apple-system,%20sans-serif%22});const%20d=document.createElement(%22div%22);Object.assign(d.style,{backgroundColor:%22#ffffff%22,color:%22#1f2937%22,borderRadius:%2212px%22,padding:%2224px%22,maxWidth:%22550px%22,width:%2290%%22,maxHeight:%2280vh%22,display:%22flex%22,flexDirection:%22column%22,boxShadow:%220%2020px%2025px%20-5px%20rgba(0,%200,%200,%200.3)%22});const%20p=document.createElement(%22div%22);p.style.marginBottom=%2212px%22,p.innerHTML='<h3%20style=%22margin:0;%20font-size:%201.25rem;%20font-weight:600;%20color:#111827;%22>Resumen%20de%20Accesibilidad</h3>';const%20m=document.createElement(%22div%22);Object.assign(m.style,{backgroundColor:%22#f3f4f6%22,border:%221px%20solid%20#e5e7eb%22,borderRadius:%228px%22,padding:%2214px%22,fontSize:%220.95rem%22,lineHeight:%221.5%22,overflowY:%22auto%22,whiteSpace:%22pre-wrap%22,marginBottom:%2220px%22,color:%22#374151%22}),m.textContent=l;const%20u=document.createElement(%22div%22);Object.assign(u.style,{display:%22flex%22,justifyContent:%22flex-end%22,gap:%2212px%22});const%20g=document.createElement(%22button%22);g.textContent=%22Cerrar%22,Object.assign(g.style,{padding:%228px%2016px%22,borderRadius:%226px%22,border:%221px%20solid%20#d1d5db%22,backgroundColor:%22#ffffff%22,color:%22#374151%22,cursor:%22pointer%22,fontWeight:%22500%22}),g.onclick=()=>s.remove();const%20y=document.createElement(%22button%22);y.textContent=%22Copiar%20texto%22,Object.assign(y.style,{padding:%228px%2016px%22,borderRadius:%226px%22,border:%22none%22,backgroundColor:%22#2563eb%22,color:%22#ffffff%22,cursor:%22pointer%22,fontWeight:%22500%22,transition:%22background-color%200.2s%22}),y.onclick=async()=>{try{navigator.clipboard&&navigator.clipboard.writeText?await%20navigator.clipboard.writeText(l):function(e){const%20t=document.createElement(%22textarea%22);t.value=e,t.style.position=%22fixed%22,t.style.opacity=%220%22,document.body.appendChild(t),t.focus(),t.select(),document.execCommand(%22copy%22),document.body.removeChild(t)}(l),y.textContent=%22%C2%A1Copiado!%22,y.style.backgroundColor=%22#16a34a%22,setTimeout(()=>{y.textContent=%22Copiar%22,y.style.backgroundColor=%22#2563eb%22},2e3)}catch(e){alert(%22Error%20al%20copiar%20el%20texto:%20%22+e.message)}},u.appendChild(g),u.appendChild(y),d.appendChild(p),d.appendChild(m),d.appendChild(u),s.appendChild(d),document.body.appendChild(s)}catch(e){alert(`Error%20al%20obtener%20los%20datos%20de%20Genially:%20${e.message}`)}})();">
+            🔍 Extraer Accesibilidad Genially
+          </a>
+        </div>
+
+        <div class="instructions">
+          <h3>Instrucciones de instalación:</h3>
+          <ol>
+            <li>Muestra la <strong>Barra de Marcadores</strong> de tu navegador (<code>Ctrl + Shift + B</code> o <code>Cmd + Shift + B</code>).</li>
+            <li>Arrastra el botón azul directamente a tu barra de marcadores.</li>
+            <li>Visita cualquier sitio web con un Genially integrado y haz clic en el marcador guardado para abrir el panel emergente.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching logic
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'search') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-search').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-bookmarklet').classList.add('active');
+      }
+    }
+
+    // Direct Extraction logic
+    async function extractAccessibility() {
+      const input = document.getElementById('geniallyUrl').value;
+      const resultsArea = document.getElementById('results');
+      const output = document.getElementById('output');
+
+      const regex = /(?:view\.genially\.com|genial\.ly)\/([a-f0-9]{24})/i;
+      const match = input.match(regex);
+
+      if (!match) {
+        alert("No se encontró ningún enlace o UUID de Genially válido.");
+        return;
+      }
+
+      resultsArea.style.display = "block";
+      output.textContent = "Obteniendo datos de Genially...";
+
+      const targetUrl = `https://view.genially.com/${match[1]}`;
+
+      try {
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const html = await response.text();
+        let accessibilitySummary = null;
+
+        const summaryMatch = html.match(/"accessibilitySummary"\s*:\s*"([^"]+)"/i);
+        if (summaryMatch) {
+          accessibilitySummary = JSON.parse(`"${summaryMatch[1]}"`);
+        } else {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+          scripts.forEach(script => {
+            try {
+              const json = JSON.parse(script.textContent);
+              if (json.accessibilitySummary) accessibilitySummary = json.accessibilitySummary;
+            } catch (e) {}
+          });
+        }
+
+        if (accessibilitySummary) {
+          output.textContent = accessibilitySummary;
+        } else {
+          output.textContent = "No se encontró el campo 'accessibilitySummary' en los metadatos de este Genially.";
+        }
+      } catch (err) {
+        output.textContent = `Error al consultar la presentación: ${err.message}`;
+      }
+    }
+
+    // Copying search result
+    async function copySearchResult() {
+      const outputText = document.getElementById('output').textContent;
+      const copyBtn = document.getElementById('copySearchBtn');
+
+      if (!outputText || outputText.startsWith("Error") || outputText.startsWith("Obteniendo")) return;
+
+      try {
+        await navigator.clipboard.writeText(outputText);
+        copyBtn.textContent = "¡Copiado!";
+        setTimeout(() => {
+          copyBtn.textContent = "Copiar Texto";
+        }, 2000);
+      } catch (e) {
+        alert("Error al copiar: " + e.message);
+      }
+    }
+  </script>
+</body>
+</html>
